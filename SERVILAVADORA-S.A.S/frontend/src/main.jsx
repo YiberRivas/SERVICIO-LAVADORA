@@ -7,8 +7,17 @@ git add .
 git commit -m "Descripción de los cambios"
   
 PARA QUE LA OTRA PERSONA SEPA QUE CAMBIOS FUERON*/
-
+ 
 /* 
+hacer tex para la conecion a la base de datos 
+  "python -m app.config.test_connection" 
+
+
+  puerto para la conexion 
+
+    uvicorn app.main:app --reload --log-level debug
+
+  
     npm run server   # para el backend
     npm run dev      # para el frontend 
 */
