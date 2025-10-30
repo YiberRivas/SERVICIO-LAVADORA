@@ -1,11 +1,62 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import "../Registro/Registro.css";
+// src/pages/Login/Login.jsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import '../../styles/globals.css';
+
 
 const Login = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (!formData.username || !formData.password) {
+      setError('Por favor completa todos los campos');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const result = await login(formData.username, formData.password);
+      
+      if (result.success) {
+        if (rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+        }
+        navigate('/dashboard');
+      } else {
+        setError(result.error || 'Usuario o contraseña incorrectos');
+      }
+    } catch (err) {
+      setError('Error al iniciar sesión. Intenta nuevamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-container">
-      {/* Botón para volver al inicio */}
       <Link to="/" className="back-home-btn">
         <i className="fas fa-arrow-left"></i>
         Volver al Inicio
@@ -17,7 +68,7 @@ const Login = () => {
           <div className="hero-content">
             <div className="hero-logo">
               <i className="fas fa-washing-machine"></i>
-              <span>LavaRenta</span>
+              <span>SERVILAVADORA</span>
             </div>
             <h2>Alquila Lavadoras de Alta Tecnología</h2>
             <p>Más de 5,000 clientes satisfechos confían en nuestro servicio de alquiler</p>
@@ -25,25 +76,11 @@ const Login = () => {
               <div className="feature">
                 <i className="fas fa-bolt"></i>
                 <span>Instalación en 24h</span>
-              </div>
-              <div className="feature">
-                <i className="fas fa-tools"></i>
-                <span>Mantenimiento incluido</span>
-              </div>
+              </div>        
               <div className="feature">
                 <i className="fas fa-shield-alt"></i>
                 <span>Garantía total</span>
               </div>
-            </div>
-          </div>
-          <div className="hero-image">
-            <div className="floating-card card-1">
-              <i className="fas fa-star"></i>
-              <span>4.9/5 Rating</span>
-            </div>
-            <div className="floating-card card-2">
-              <i className="fas fa-users"></i>
-              <span>5,000+ Clientes</span>
             </div>
           </div>
         </div>
@@ -52,17 +89,30 @@ const Login = () => {
         <div className="auth-form-container">
           <div className="auth-card">
             <div className="card-header">
-              <h1>Bienvenido de nuevo</h1>
-              <p>Ingresa a tu cuenta para continuar</p>
+              <h1>Bienvenido</h1>
+
+      
             </div>
 
-            <form className="auth-form">
+            {error && (
+              <div className="error-message">
+                <i className="fas fa-exclamation-circle"></i>
+                {error}
+              </div>
+            )}
+            <p>Ingresa a tu cuenta para continuar</p>
+            <form className="auth-form" onSubmit={handleSubmit}>
               <div className="input-group animated-input">
-                <i className="fas fa-envelope input-icon"></i>
+                <i className="fas fa-user input-icon"></i>
                 <input
-                  type="email"
+                  type="text"
+                  name="username"
                   className="form-input"
-                  placeholder="Correo electrónico"
+                  placeholder="Usuario"
+                  value={formData.username}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
                 />
                 <div className="input-focus"></div>
               </div>
@@ -71,39 +121,36 @@ const Login = () => {
                 <i className="fas fa-lock input-icon"></i>
                 <input
                   type="password"
+                  name="password"
                   className="form-input"
                   placeholder="Contraseña"
+                  value={formData.password}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
                 />
                 <div className="input-focus"></div>
               </div>
 
               <div className="form-options">
                 <label className="checkbox-container">
-                  <input type="checkbox" />
+                  <input 
+                    type="checkbox" 
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                  />
                   Recordar sesión
                 </label>
-                <a href="#" className="forgot-password">¿Olvidaste tu contraseña?</a>
               </div>
 
-              <button type="button" className="submit-btn">
-                <span>Iniciar Sesión</span>
-                <i className="fas fa-arrow-right"></i>
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading}
+              >
+                <span>{loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}</span>
+                {!loading && <i className="fas fa-arrow-right"></i>}
               </button>
-
-              <div className="divider">
-                <span>o continúa con</span>
-              </div>
-
-              <div className="social-auth">
-                <button type="button" className="social-btn google">
-                  <i className="fab fa-google"></i>
-                  Google
-                </button>
-                <button type="button" className="social-btn facebook">
-                  <i className="fab fa-facebook-f"></i>
-                  Facebook
-                </button>
-              </div>
 
               <div className="auth-switch">
                 <p>
@@ -112,6 +159,16 @@ const Login = () => {
                     Regístrate aquí
                   </Link>
                 </p>
+              </div>
+
+              {/* Credenciales de prueba */}
+              <div className="demo-credentials">
+                <p className="demo-title">👉 Credenciales de prueba:</p>
+                <div className="demo-list">
+                  <p><strong>Admin:</strong> admin / admin123</p>
+                  <p><strong>Cliente:</strong> juan / juan123</p>
+                  <p><strong>Empleado:</strong> carlos / carlos123</p>
+                </div>
               </div>
             </form>
           </div>

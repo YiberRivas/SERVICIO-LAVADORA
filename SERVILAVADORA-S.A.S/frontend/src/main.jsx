@@ -21,7 +21,6 @@ hacer tex para la conecion a la base de datos
     npm run server   # para el backend
     npm run dev      # para el frontend 
 */
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';

@@ -1,142 +1,80 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// frontend/src/context/AuthContext.jsx
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { authService } from '../api/authService'; // ← CAMBIADO
 
-// Crear el contexto
 const AuthContext = createContext();
 
-// Hook personalizado para usar el contexto
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+
+    if (token && storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error al parsear usuario:', error);
+        logout();
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (username, password) => {
+    try {
+      // ← CAMBIADO: authService.login ya maneja todo
+      const data = await authService.login(username, password);
+      
+      setUser(data.usuario);
+      setIsAuthenticated(true);
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error en login:', error);
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Error al iniciar sesión'
+      };
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      const data = await authService.registro(userData); // ← CAMBIADO
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error en registro:', error);
+      return {
+        success: false,
+        error: error.response?.data?.detail || 'Error al registrarse'
+      };
+    }
+  };
+
+  const logout = () => {
+    authService.logout(); // ← AGREGADO
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, loading, isAuthenticated, login, register, logout }}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+};
+
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
+    throw new Error('useAuth debe usarse dentro de AuthProvider');
   }
   return context;
 };
 
-// Proveedor del contexto
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  // Al cargar la app, verificar si hay usuario en localStorage
-  useEffect(() => {
-    const checkAuth = () => {
-      try {
-        const storedUser = localStorage.getItem('lavarenta_user');
-        const storedToken = localStorage.getItem('lavarenta_token');
-        
-        if (storedUser && storedToken) {
-          setUser(JSON.parse(storedUser));
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error);
-        // Limpiar datos corruptos
-        localStorage.removeItem('lavarenta_user');
-        localStorage.removeItem('lavarenta_token');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  // Mock login - simula login exitoso
-  const login = async (email, password) => {
-    setLoading(true);
-    
-    try {
-      // Simular delay de red
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Crear usuario mock
-      const mockUser = {
-        id: 1,
-        name: 'Usuario Demo',
-        email: email,
-        role: 'admin',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face'
-      };
-      
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      
-      // Guardar en estado y localStorage
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('lavarenta_user', JSON.stringify(mockUser));
-      localStorage.setItem('lavarenta_token', mockToken);
-      
-      return { success: true, user: mockUser };
-    } catch (error) {
-      console.error('Login error:', error);
-      return { success: false, error: 'Error en el login' };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Mock register - simula registro exitoso
-  const register = async (userData) => {
-    setLoading(true);
-    
-    try {
-      // Simular delay de red
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Crear usuario mock
-      const mockUser = {
-        id: Date.now(),
-        name: userData.name,
-        email: userData.email,
-        role: 'user',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face'
-      };
-      
-      const mockToken = 'mock_jwt_token_' + Date.now();
-      
-      // Guardar en estado y localStorage
-      setUser(mockUser);
-      setIsAuthenticated(true);
-      localStorage.setItem('lavarenta_user', JSON.stringify(mockUser));
-      localStorage.setItem('lavarenta_token', mockToken);
-      
-      return { success: true, user: mockUser };
-    } catch (error) {
-      console.error('Register error:', error);
-      return { success: false, error: 'Error en el registro' };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Logout
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('lavarenta_user');
-    localStorage.removeItem('lavarenta_token');
-  };
-
-  // Demo login rápido
-  const demoLogin = () => {
-    return login('demo@lavarenta.com', 'demo123');
-  };
-
-  // Valores que estarán disponibles en el contexto
-  const value = {
-    user,
-    isAuthenticated,
-    loading,
-    login,
-    register,
-    logout,
-    demoLogin
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+export default AuthContext;
