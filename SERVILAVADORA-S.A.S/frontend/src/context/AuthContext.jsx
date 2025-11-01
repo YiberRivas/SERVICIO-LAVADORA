@@ -1,80 +1,52 @@
-// frontend/src/context/AuthContext.jsx
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authService } from '../api/authService'; // ← CAMBIADO
+// src/context/AuthContext.jsx
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedUser = localStorage.getItem('user');
-
-    if (token && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error al parsear usuario:', error);
-        logout();
-      }
-    }
-    setLoading(false);
-  }, []);
-
+  // Función para hacer login contra el backend
   const login = async (username, password) => {
     try {
-      // ← CAMBIADO: authService.login ya maneja todo
-      const data = await authService.login(username, password);
-      
-      setUser(data.usuario);
-      setIsAuthenticated(true);
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
-      return { success: true, data };
+      if (!response.ok) {
+        throw new Error('Error al conectar con el servidor');
+      }
+
+      const data = await response.json();
+
+      if (data.access_token) {
+        // Guardar usuario y token
+        localStorage.setItem('token', data.access_token);
+        setUser(data.user || { username });
+        return { success: true };
+      } else {
+        return { success: false, error: data.detail || 'Credenciales incorrectas' };
+      }
     } catch (error) {
       console.error('Error en login:', error);
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Error al iniciar sesión'
-      };
-    }
-  };
-
-  const register = async (userData) => {
-    try {
-      const data = await authService.registro(userData); // ← CAMBIADO
-      return { success: true, data };
-    } catch (error) {
-      console.error('Error en registro:', error);
-      return {
-        success: false,
-        error: error.response?.data?.detail || 'Error al registrarse'
-      };
+      return { success: false, error: 'Error de conexión con el servidor' };
     }
   };
 
   const logout = () => {
-    authService.logout(); // ← AGREGADO
+    localStorage.removeItem('token');
     setUser(null);
-    setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, isAuthenticated, login, register, logout }}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de AuthProvider');
-  }
-  return context;
-};
-
-export default AuthContext;
+export const useAuth = () => useContext(AuthContext);

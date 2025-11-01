@@ -1,35 +1,49 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
-import MainLayout from "./layouts/MainLayout";
-import Home from "./pages/Home/Home";
-import Servicios from "./pages/Servicios/Servicios";
-import Login from "./pages/Login/Login";
-import Soporte from "./pages/Soporte/Soporte";
-import Registro from "./pages/Registro/Registro";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import "./styles/globals.css";
+
+import Inicio from './pages/Inicio';
+import Login from './pages/Login';
+import Registro from './pages/Registro'; 
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
-            <Route path="servicios" element={<Servicios />} />
-            <Route path="login" element={<Login />} />
-            <Route path="soporte" element={<Soporte />} />
-            <Route path="registro" element={<Registro />} />
-          </Route>
-
-          {/* Panel administrativo */}
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Inicio />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+      </Routes>
+    </Router>
   );
 }
 
-export default App; 
+const LoginWrapper = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = async (username, password) => {
+    const result = await login(username, password);
+    if (result.success) navigate('/');
+    return result;
+  };
+
+  return (
+    <Login
+      onLogin={handleLogin}
+      onNavigateToRegister={() => navigate('/registro')}
+      onNavigateToHome={() => navigate('/')}
+    />
+  );
+};
+
+export default App;
+
+
+
+
+
+
+
+

@@ -1,0 +1,221 @@
+/* Registro.css - Estilos exclusivos para el formulario de registro */
+
+:root {
+  --primary: #00C6B3;
+  --primary-dark: #00A895;
+  --primary-light: #4DEDD5;
+  --dark: #1a1a2e;
+  --darker: #16213e;
+  --white: #fff;
+}
+
+/* Fondo general */
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--darker), var(--dark), var(--primary-dark));
+  position: relative;
+  overflow: hidden;
+  color: var(--white);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Efectos flotantes */
+.floating-icons-register div {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  animation: floatRegister 15s linear infinite;
+}
+@keyframes floatRegister {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+.floating-icons-register div:nth-child(1) { top: 20%; left: 10%; animation-duration: 20s; }
+.floating-icons-register div:nth-child(2) { top: 60%; left: 70%; animation-delay: -5s; }
+.floating-icons-register div:nth-child(3) { top: 40%; left: 50%; animation-delay: -10s; }
+.floating-icons-register div:nth-child(4) { top: 80%; left: 30%; animation-delay: -15s; }
+
+/* Contenedor principal */
+.register-container {
+  position: relative;
+  width: 850px;
+  min-height: 600px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  padding: 40px 60px;
+  z-index: 1;
+}
+
+/* Fondo decorativo curvado */
+.curved-shape-register {
+  position: absolute;
+  top: -5px;
+  right: 0;
+  width: 900px;
+  height: 600px;
+  background: linear-gradient(45deg, rgba(22, 33, 62, 0.9), rgba(77, 237, 213, 0.5));
+  transform: rotate(10deg) skewY(40deg);
+  transform-origin: bottom right;
+  border-radius: 20px;
+  z-index: -1;
+}
+
+/* Caja del formulario */
+.form-box-register h2 {
+  text-align: center;
+  font-size: 28px;
+  color: var(--primary-light);
+  margin-bottom: 20px;
+}
+
+.input-box-register {
+  position: relative;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.input-box-register input,
+.select-register,
+.date-input-register {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+  color: var(--white);
+  font-size: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-box-register label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.input-box-register input:focus ~ label,
+.input-box-register input:valid ~ label {
+  top: -5px;
+  font-size: 14px;
+  color: var(--primary-light);
+}
+
+/* Iconos */
+.input-box-register i {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Botones */
+.btn-register {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: 30px;
+  color: var(--white);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 198, 179, 0.4);
+}
+
+.btn-secondary {
+  background: #444;
+  margin-right: 10px;
+}
+
+/* Grupo de botones */
+.button-group-register {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+/* Checkbox */
+.checkbox-box-register {
+  margin: 20px 0;
+}
+.checkbox-label-register span {
+  margin-left: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Alertas */
+.alert-error-register,
+.alert-success-register {
+  background: rgba(255, 0, 0, 0.15);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+.alert-success-register {
+  background: rgba(0, 255, 127, 0.15);
+}
+
+/* Links inferiores */
+.regi-link-register {
+  text-align: center;
+  margin-top: 15px;
+}
+.link-action-register {
+  color: var(--primary-light);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.link-action-register:hover {
+  color: var(--white);
+}
+
+/* Sección informativa lateral */
+.info-content-register {
+  margin-top: 40px;
+  text-align: center;
+}
+.info-content-register h2 {
+  color: var(--primary-light);
+  margin-bottom: 10px;
+}
+.info-content-register p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .register-container {
+    width: 95%;
+    padding: 20px;
+  }
+  .curved-shape-register {
+    display: none;
+  }
+}
